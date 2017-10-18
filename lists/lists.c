@@ -12,10 +12,10 @@ void init(List **a) {
 }
 
 int 
-is_memory_error(void *s, const size_t line) 
+is_memory_error(void *s, const char *msg) 
 { 
     if (s == NULL) {
-        fprintf(stderr, "Memory allocation error at line %ld!\nDetail: ", line);
+        fprintf(stderr, "Memory allocation error in %s!\nDetail: ", msg);
         perror(NULL);
     }
     return !!!s;
@@ -26,12 +26,12 @@ insert(List **a, const char *src)
 {
     List *p = *a;
     List *new_node = malloc(sizeof(**a));
-    if (is_memory_error(new_node, 30)) {
+    if (is_memory_error(new_node, "insert()")) {
         return 0;
     }
     new_node->next = NULL;
     new_node->str = malloc((strlen(src) + 1) * sizeof(src[0]));
-    if (is_memory_error(new_node, 35)) {
+    if (is_memory_error(new_node, "insert()")) {
         return 0;
     }
     for (int i = 0; src[i] != '\0'; i++) {
@@ -89,7 +89,7 @@ str_input(char **str)
     char c, *tmp = *str;
     size_t bufsize = DEFAULT_BUF_SIZE;
     tmp = malloc(bufsize * sizeof(tmp[0]));
-    if (is_memory_error(tmp, 92)) {
+    if (is_memory_error(tmp, "str_input()")) {
         return ERR_CODE_INPUT;
     }
     size_t i = 0;
@@ -97,7 +97,7 @@ str_input(char **str)
         if (i == bufsize) {
             bufsize *= 2;
             char *new_tmp = realloc(tmp, bufsize * sizeof(tmp[0]));
-            if (is_memory_error(new_tmp, 100)) {
+            if (is_memory_error(new_tmp, "str_input()")) {
                 free(tmp);
                 return ERR_CODE_INPUT;
             }

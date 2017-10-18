@@ -1,19 +1,32 @@
 #!/bin/bash
 
+if [[ $1 == "-clear" ]];
+then 
+    rm -r coverage/ html/
+    rm lists.o
+    echo 'Cleared! Bye'
+    exit 0
+fi
+
 if [[ $1 == "-c" ]];
 then 
     mkdir coverage && cd coverage
     cp ../lists.c lists.c
     gcc --coverage lists.c -o lists.o
-    python ../tester.py ../tests ./lists
+    python ../tester.py ../tests ./lists.o
     gcov lists.c
-    lcov --directory ./ --capture --output-file tests.info --rc lcov_branch_coverage=1
+    if [[ $2 == "-local" ]];
+    then
+        pref+='../lcov/bin/'
+    fi
+    LCOVRUN='lcov --directory ./ --capture --output-file tests.info --rc lcov_branch_coverage=1'
+    GENHTMLRUN='genhtml -o ../html tests.info --branch-coverage'
+    $pref$LCOVRUN
     cd -
     mkdir html && cd coverage
-    genhtml -o ../html tests.info --branch-coverage
+    $pref$GENHTMLRUN
     exit 0
 fi
-
 
 gcc lists.c -o lists.o -O2 -Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=gnu11 -ftrapv -fsanitize=undefined
 

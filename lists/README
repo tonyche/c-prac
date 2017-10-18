@@ -7,7 +7,8 @@ First task: lists, 1st variant.
 
 Usage: 
         ./run                   --      Just build and run 
-        ./run -c                --      Coverage test
+        ./run -c                --      Coverage test (if lcov not installed, add flag -local)
         ./run -v <filename>     --      Build and run with valgrind, output of valgrind will be in <filename>
         ./run -t                --      Test your program
+        ./run -clean            --      Delete elf's, coverage files, etc...
 
