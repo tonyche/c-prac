@@ -1,0 +1,13 @@
+Requirements:
+
+    python2.7
+    gcc (6 or later)
+
+First task: lists, 1st variant.
+
+Usage: 
+        ./run                   --      Just build and run 
+        ./run -c                --      Coverage test
+        ./run -v <filename>     --      Build and run with valgrind, output of valgrind will be in <filename>
+        ./run -t                --      Test your program
+
