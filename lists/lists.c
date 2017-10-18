@@ -7,8 +7,6 @@ typedef struct Node {
     struct Node *next;
 } List;
 
-//typedef struct Node List;
-
 void init(List **a) {
     *a = NULL;
 }
@@ -16,7 +14,7 @@ void init(List **a) {
 int 
 is_memory_error(void *s, const size_t line) 
 { 
-    if (!s) {
+    if (s == NULL) {
         fprintf(stderr, "Memory allocation error at line %ld!\nDetail: ", line);
         perror(NULL);
     }
