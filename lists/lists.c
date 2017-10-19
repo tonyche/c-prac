@@ -34,9 +34,11 @@ insert(List **a, const char *src)
     if (is_memory_error(new_node, "insert()")) {
         return 0;
     }
-    for (int i = 0; src[i] != '\0'; i++) {
+    int i = 0;
+    for (; src[i] != '\0'; i++) {
         new_node->str[i] = src[i]; 
     }
+    new_node->str[i + 1] = '\0';
     if (*a == NULL) {
         *a = new_node;
         return 1;
