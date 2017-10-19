@@ -1,11 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct Node {
-    char *str;
-    struct Node *next;
-} List;
+#include "liblists.h"
 
 void init(List **a) {
     *a = NULL;
@@ -69,16 +65,17 @@ delete_list(List *a)
 
 //0 if not find, 1 otherwise
 int 
-str_in_list(List *a, const char *src) 
+str_in_list(const List *a, const char *src) 
 {
-    if (a == NULL) {
+    List *tmp = (List *) a;
+    if (tmp == NULL) {
         return 0;
     }
     do {
-        if (!strcmp(a->str, src)) {
+        if (!strcmp(tmp->str, src)) {
             return 1;
         }
-    } while ((a = a->next) != NULL);
+    } while ((tmp = tmp->next) != NULL);
     return 0;
 }
 
@@ -125,25 +122,6 @@ input_list(List **a)
 }
 
 void 
-form_xor_list(List **dest, List *src_1, List *src_2) 
-{
-    List *tmp = src_1;
-    while (src_1 != NULL) {
-        if (!str_in_list(src_2, src_1->str)) {
-            insert(&(*dest), src_1->str);
-        }
-        src_1 = src_1->next;
-    }
-    src_1 = tmp;
-    while (src_2 != NULL) {
-        if (!str_in_list(src_1, src_2->str)) {
-            insert(&(*dest), src_2->str);
-        }
-        src_2 = src_2->next;
-    }
-}
-
-void 
 print_list(List *a) 
 {
     if (a == NULL) {
@@ -152,21 +130,4 @@ print_list(List *a)
     do {
         printf("%s\n", a->str);
     } while ((a = a->next) != NULL);
-}
-
-int 
-main(void) 
-{
-    List *L1, *L2, *L3;
-    init(&L1); 
-    init(&L2); 
-    init(&L3);
-    input_list(&L1);
-    input_list(&L2);
-    form_xor_list(&L3, L1, L2);
-    print_list(L3);
-    delete_list(L1); 
-    delete_list(L2); 
-    delete_list(L3);
-    return 0;
 }

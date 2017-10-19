@@ -3,7 +3,7 @@
 if [[ $1 == "-clear" ]];
 then 
     rm -r coverage/ html/
-    rm lists.o
+    rm lists
     echo 'Cleared! Bye'
     exit 0
 fi
@@ -11,10 +11,12 @@ fi
 if [[ $1 == "-c" ]];
 then 
     mkdir coverage && cd coverage
-    cp ../lists.c lists.c
-    gcc --coverage lists.c -o lists.o
-    python ../tester.py ../tests ./lists.o
-    gcov lists.c
+    cp ../main.c main.c
+    cp ../liblists.c liblists.c
+    cp ../liblists.h liblists.h
+    gcc --coverage main.c liblists.c -o lists
+    python ../tester.py ../tests ./lists
+    gcov main.c
     if [[ $2 == "-local" ]];
     then
         pref+='../lcov/bin/'
@@ -28,18 +30,18 @@ then
     exit 0
 fi
 
-gcc lists.c -o lists.o -O2 -Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=gnu11 -ftrapv -fsanitize=undefined
+gcc main.c liblists.c -o lists -O2 -Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=gnu11 -ftrapv -fsanitize=undefined
 
 if [[ $? -eq 0 ]];
 then
     if [[ $1 == "" ]];
     then
-        ./lists.o
+        ./lists
     elif [[ $1 == "-v" ]];
     then
-        valgrind --leak-check=full ./lists.o 2>$2
+        valgrind --leak-check=full ./lists 2>$2
     elif [[ $1 == "-t" ]];
     then
-        python tester.py tests ./lists.o
+        python tester.py tests ./lists
     fi  
 fi
