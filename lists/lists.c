@@ -38,7 +38,7 @@ insert(List **a, const char *src)
     for (; src[i] != '\0'; i++) {
         new_node->str[i] = src[i]; 
     }
-    new_node->str[i + 1] = '\0';
+    new_node->str[i] = '\0';
     if (*a == NULL) {
         *a = new_node;
         return 1;
