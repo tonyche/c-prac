@@ -8,4 +8,5 @@
 ehthumbs.db
 Thumbs.db
 *.o
-lists
+./lists/lists
+./files/files

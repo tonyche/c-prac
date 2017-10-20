@@ -1,3 +1,6 @@
+#ifndef MODULE_H_INCLUDED
+#define MODULE_H_INCLUDED
+
 typedef struct Node {
     char *str;
     struct Node *next;
@@ -18,3 +21,5 @@ int str_input(char **str);
 void input_list(List **a);
 
 void print_list(List *a);
+
+#endif
