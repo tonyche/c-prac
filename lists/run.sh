@@ -39,7 +39,8 @@ then
         ./lists
     elif [[ $1 == "-v" ]];
     then
-        valgrind --leak-check=full ./lists 2>$2
+        #valgrind --leak-check=full ./lists 2>$2
+        python tester.py tests ./lists -tv $2
     elif [[ $1 == "-t" ]];
     then
         python tester.py tests ./lists
