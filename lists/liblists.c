@@ -67,15 +67,14 @@ delete_list(List *a)
 int 
 str_in_list(const List *a, const char *src) 
 {
-    List *tmp = (List *) a;
-    if (tmp == NULL) {
+    if (a == NULL) {
         return 0;
     }
     do {
-        if (!strcmp(tmp->str, src)) {
+        if (!strcmp(a->str, src)) {
             return 1;
         }
-    } while ((tmp = tmp->next) != NULL);
+    } while ((a = a->next) != NULL);
     return 0;
 }
 

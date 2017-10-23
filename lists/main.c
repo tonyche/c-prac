@@ -6,21 +6,19 @@
 void 
 form_xor_list(List **dest, const List *src_1, const List *src_2) 
 {
-    List *tmp_1 = (List *) src_1;
-    List *tmp_1_second = tmp_1;
-    List *tmp_2 = (List *) src_2;
-    while (tmp_1 != NULL) {
-        if (!str_in_list(tmp_2, tmp_1->str)) {
-            insert(&(*dest), tmp_1->str);
+    const List *tmp_1_second = src_1;
+    while (src_1 != NULL) {
+        if (!str_in_list(src_2, src_1->str)) {
+            insert(&(*dest), src_1->str);
         }
-        tmp_1 = tmp_1->next;
+        src_1 = src_1->next;
     }
-    tmp_1 = tmp_1_second;
-    while (tmp_2 != NULL) {
-        if (!str_in_list(tmp_1, tmp_2->str)) {
-            insert(&(*dest), tmp_2->str);
+    src_1 = tmp_1_second;
+    while (src_2 != NULL) {
+        if (!str_in_list(src_1, src_2->str)) {
+            insert(&(*dest), src_2->str);
         }
-        tmp_2 = tmp_2->next;
+        src_2 = src_2->next;
     }
 }
 
