@@ -11,7 +11,7 @@ for filename in os.listdir(c_dir):
     if filename.endswith(".dat"):
         all_tests += 1
 
-all_tests /= 2
+all_tests /= 3
 
 print "All tests: " + str(all_tests)
 print "=" * 30
@@ -19,8 +19,10 @@ print "=" * 30
 program_name = sys.argv[2]
 passed_tests = 0
 
-if sys.argv[3] == '-tv':
-    log = open(sys.argv[4], "w")
+
+if len(sys.argv) == 5: 
+    if sys.argv[3] == '-tv':
+        log = open(sys.argv[4], "w")
 
 for i in range(all_tests):
     out_file_name = str(i) + "_out.dat"
@@ -30,8 +32,9 @@ for i in range(all_tests):
     right_processed = c_dir + str(i) + "_ed_res.dat"
     cur_test = {'Out': open(out_file_name, "w")}
     shutil.copy2(right_to_process, './' + out_to_process)
-    if sys.argv[3] == '-tv':
-        subprocess.check_call(['valgrind', program_name, out_to_process], stdout=cur_test['Out'], stderr=log)
+    if len(sys.argv) == 5: 
+        if sys.argv[3] == '-tv':
+            subprocess.check_call(['valgrind', program_name, out_to_process], stdout=cur_test['Out'], stderr=log)
     else:    
         subprocess.check_call([program_name, out_to_process], stdout=cur_test['Out'], stderr=subprocess.STDOUT)
    
