@@ -61,7 +61,7 @@ size_t search_string(size_t *length, FILE *f, int mode,
     free(buf);
     file_err_handler(f, fseek(f, cursor_before, SEEK_SET));
     *length = res_len;
-    if (res_strpos == 0 && res_len == 0) {
+    if (res_len == 0 && res_strpos == 0) {
         return 0;
     }
     return res_strpos - res_len - 1;
@@ -134,6 +134,10 @@ void fprntline(FILE *f, size_t line_pos, size_t length) {
     char buf[STR_BUF_SIZE], *line_end;
     size_t bufsize= STR_BUF_SIZE;
     file_err_handler(f, fseek(f, line_pos, SEEK_SET));
+    if (length == 0) {
+        puts("");
+        return;
+    }
     while (fgets(buf, bufsize, f) != NULL && length / bufsize) {
         printf("%s", buf);
         length -= bufsize;
