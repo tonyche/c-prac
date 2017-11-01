@@ -1,0 +1,16 @@
+Requirements:
+
+    gcov
+    python2.7
+    gcc (6 or later)
+
+Second task: files, 2nd variant.
+
+Usage: 
+        ./run                   --      Just build and run 
+        ./run -c                --      Coverage test (if lcov not in $PATH add flag -local)
+        ./run -v <filename>     --      Build and run with valgrind, output of valgrind will be in <filename>
+        ./run -t                --      Test your program
+        ./run -clean            --      Delete elf's, coverage files, etc...
+        ./run -lcov             --      Download lcov
+
