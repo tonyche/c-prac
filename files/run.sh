@@ -16,12 +16,14 @@ fi
 
 src='./src'
 headers='./include'
+compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=c99' 
 
 if [[ $1 == "-c" ]];
 then 
     cp -r $src coverage && cp -r $headers ./coverage
     cd ./coverage
-    gcc -I$headers --coverage main.c libfiles.c -o files
+    gcc -I$headers --coverage main.c libfiles.c -o files $compile_param
+    ./files #test if no input file
     python ../tester.py ../tests ./files
     gcov main.c
     if [[ $2 == "-local" ]];
@@ -37,7 +39,7 @@ then
     exit 0
 fi
 
-gcc -I$headers $src/main.c $src/libfiles.c -o files -O2 -Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=gnu11 -ftrapv -fsanitize=undefined
+gcc -I$headers $src/main.c $src/libfiles.c -o files -O2 $compile_param -ftrapv -fsanitize=undefined
 
 if [[ $? -eq 0 ]];
 then
