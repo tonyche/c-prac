@@ -1,5 +1,6 @@
 #ifndef MODULE_H_INCLUDED
 #define MODULE_H_INCLUDED 
+#define checkflag(x) if(!x) {fprintf(stderr, "Potential error!");}
 
 enum {
     STR_BUF_SIZE = 1024,

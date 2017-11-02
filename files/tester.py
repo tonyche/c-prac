@@ -36,7 +36,7 @@ for i in range(all_tests):
         if sys.argv[3] == '-tv':
             subprocess.check_call(['valgrind', program_name, out_to_process], stdout=cur_test['Out'], stderr=log)
     else:    
-        subprocess.check_call([program_name, out_to_process], stdout=cur_test['Out'], stderr=subprocess.STDOUT)
+        subprocess.check_call([program_name, out_to_process], stdout=cur_test['Out'])
    
     cur_test['Out'].close()
     if filecmp.cmp(out_file_name, right_answ_file_name) and filecmp.cmp(out_to_process, right_processed):

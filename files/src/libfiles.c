@@ -74,22 +74,28 @@ static void lshift(size_t bufsize, size_t blocks, size_t left,
     if (mod_shift) {
         bufsize_mod = mod_shift;
     }
+    int flag = 1;
     file_err_handler(f, fseek(f, left, SEEK_SET));
-    fread(buf, bufsize_mod, sizeof(*buf), f);
+    flag &= fread(buf, bufsize_mod, sizeof(*buf), f);
+    checkflag(flag);
     left += bufsize_mod;
     for (int i = blocks; i > 0; i--) {
         file_err_handler(f, fseek(f, left, SEEK_SET));
-        fread(sh_buf, bufsize, sizeof(*sh_buf), f);
+        flag &= fread(sh_buf, bufsize, sizeof(*sh_buf), f);
+        checkflag(flag);
         left -= bufsize_mod;
         file_err_handler(f, fseek(f, left, SEEK_SET));
-        fwrite(sh_buf, bufsize, sizeof(*sh_buf), f);
+        flag &= fwrite(sh_buf, bufsize, sizeof(*sh_buf), f);
+        checkflag(flag);
         left += bufsize + bufsize_mod;
     }
     file_err_handler(f, fseek(f, left, SEEK_SET));
-    fread(sh_buf, last_bufsize, sizeof(*sh_buf), f);
+    flag &= fread(sh_buf, last_bufsize, sizeof(*sh_buf), f);
+    checkflag(flag);
     file_err_handler(f, fseek(f, left - bufsize_mod, SEEK_SET));
-    fwrite(sh_buf, last_bufsize, sizeof(*sh_buf), f);
-    fwrite(buf, bufsize_mod, sizeof(*buf), f);
+    flag &= fwrite(sh_buf, last_bufsize, sizeof(*sh_buf), f);
+    flag &= fwrite(buf, bufsize_mod, sizeof(*buf), f);
+    checkflag(flag);
 }
 
 void process_shift(size_t left, size_t right, size_t shift, FILE *f) {
@@ -98,11 +104,13 @@ void process_shift(size_t left, size_t right, size_t shift, FILE *f) {
     char buf[bufsize];
     file_err_handler(f, fseek(f, left, SEEK_SET));
     long delta = right - left;
+    int flag = 1;
     if (delta != 0) {
         shift %= delta;
     }
     if (delta <= bufsize) {
-        fread(buf, delta, sizeof(*buf), f);
+        flag &= fread(buf, delta, sizeof(*buf), f);
+        checkflag(flag);
         file_err_handler(f, fseek(f, left, SEEK_SET));
         for (int i = 0; i < delta; i++) {
             fputc(buf[(i + shift) % delta], f);
