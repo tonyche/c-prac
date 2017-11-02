@@ -14,3 +14,11 @@ Usage:
         ./run -clean            --      Delete elf's, coverage files, etc...
         ./run -lcov             --      Download lcov
 
+Group of tests:
+
+        0          empty file
+        1 .. 5     1 string (various sizes)
+        6 .. 9     2 strings (check for null-length delta between strings)
+        10 .. 14   3 strings (not null-length delta)
+        15 .. 17   general tests
+        
