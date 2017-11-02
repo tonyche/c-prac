@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     size_t len_longest, len_shortest;
-    int status;
+    int status = 0;
     size_t pos_longest = search_string(&len_longest, f, SEARCH_MAX, more_than, &status);
     size_t pos_shortest = search_string(&len_shortest, f, SEARCH_MIN, less_than, &status); 
     if (status == MEMORY_ERR) {
