@@ -86,11 +86,9 @@ static void lshift(size_t bufsize, size_t blocks, size_t left,
         left += bufsize + bufsize_mod;
     }
     file_err_handler(f, fseek(f, left, SEEK_SET));
-    if (last_bufsize) {
-        fread(sh_buf, last_bufsize, sizeof(*sh_buf), f);
-        file_err_handler(f, fseek(f, left - bufsize_mod, SEEK_SET));
-        fwrite(sh_buf, last_bufsize, sizeof(*sh_buf), f);
-    } 
+    fread(sh_buf, last_bufsize, sizeof(*sh_buf), f);
+    file_err_handler(f, fseek(f, left - bufsize_mod, SEEK_SET));
+    fwrite(sh_buf, last_bufsize, sizeof(*sh_buf), f);
     fwrite(buf, bufsize_mod, sizeof(*buf), f);
 }
 
