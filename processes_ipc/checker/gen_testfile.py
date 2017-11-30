@@ -2,9 +2,12 @@
 
 import sys, io
 
+bufsize = 2**16
+padding = 16
+
 def input_check(a):
     a = str(raw_input(a))
-    if len(a) < 2**16:
+    if len(a) <= bufsize - padding:
         return a.strip()
     else:
         print('Too long input! Bye!')
@@ -29,7 +32,9 @@ with io.open(sys.argv[1], "wb") as f:
         dbg += hex(ord(i)) + " "
     print('Your key: ' + dbg)
     write_token(key, input_check('Enter name of test topic: '), f)
-    n = int(input_check('How many questions? '))
+    n = int(raw_input('How many questions? ')
+    while bufsize - padding < n < 1:
+        n = int(raw_input('Please enter number 1 .. ' + str(bufsize - padding)))
     while n:
         write_token(key, input_check('Question: '), f)
         write_token(key, input_check('Right answer: '), f)

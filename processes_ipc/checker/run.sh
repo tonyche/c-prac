@@ -47,7 +47,11 @@ if [[ $? -eq 0 ]];
 then
     if [[ $1 == "" ]];
     then
-        echo "Wrong params!"
+        echo "Processing with no params!"
+        exit 0
+    elif [[ $1 == "-g" ]];
+    then
+        #TODO DEBUG MODE
         exit 1
     elif [[ $1 == "-v" ]];
     then
