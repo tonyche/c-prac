@@ -11,6 +11,9 @@
 (((uint16_t) ((uint8_t) HIGH)) & 255) << 8 | \
             (((uint8_t) LOW) & 255) 
 
+#define HBYTE(A) ((A & (255 << 8)) >> 8)
+#define LBYTE(A) (A & 255) 
+
 void errhandler(void) {
     perror(NULL);
     exit(EXIT_FAILURE);
@@ -19,7 +22,7 @@ void errhandler(void) {
 char read_command(uint16_t *arg) {
     char buf[COMM_LEN];
     int k;
-    if ((k = read(0, buf, COMM_LEN)) == -1) {
+    if ((k = read(STDIN_FILENO, buf, COMM_LEN)) == -1) {
         return ERR_READ;
     }
     if (k == 0) {
@@ -100,7 +103,7 @@ static int check_answer(char *right, char *answer, uint16_t len) {
 }
 
 static void write_u16(int fd, uint16_t len, char *status) {
-    char buf[ARGSIZE] = {(len & (255 << 8)) >> 8, len & 255};
+    char buf[ARGSIZE] = {HBYTE(len), LBYTE(len)};
     if (write(fd, buf, ARGSIZE) != ARGSIZE) {
         *status = ERR_WRITE;
     }
@@ -119,8 +122,8 @@ static void get_text(int fd, uint16_t arg, char *status, char *key) {
     }
     xor(buf, key, len);
     if (*status == OK) {
-        write_u16(1, len, status);
-        safe_write(1, buf, len, status);
+        write_u16(STDOUT_FILENO, len, status);
+        safe_write(STDOUT_FILENO, buf, len, status);
     }
 }
 
@@ -129,7 +132,7 @@ static void check_answ(int fd, uint16_t arg, char *status, char *key) {
     char answer[BUFSIZE], tmp[BUFSIZE], buf[BUFSIZE]; 
     *status = WRONG_ANSW;
     safe_read_token(fd, tmp, &tmp_len, status);
-    safe_read_token(0, answer, &tmp_len, status);
+    safe_read_token(STDIN_FILENO, answer, &tmp_len, status);
     answer[tmp_len] = '\0';
     while (arg--) {
         safe_read_token(fd, tmp, &tmp_len, status);
@@ -160,9 +163,29 @@ static void get_num_q(int fd, uint16_t arg, char *status, char *key) {
     } while (*status != DATA_END && *status != ERR_READ);
     if (*status == DATA_END) {
         *status = OK;
-        write_u16(1, num, status);
+        write_u16(STDOUT_FILENO, num, status);
     }
 }
+
+char *assembly(char opcode, uint16_t arg, char *data, size_t *len) {
+    *len = sizeof(opcode) + sizeof(arg);
+    char *code;
+    if (!(code = malloc(*len))) {
+        return NULL;
+    }
+    code[0] = opcode;
+    code[1] = (char) HBYTE(arg);
+    code[2] = (char) LBYTE(arg);
+    if (data) {
+        size_t len_data = strlen(data);
+        *len += len_data;
+        if (!(code = realloc(code, *len))) {
+            return NULL;
+        }
+        memcpy(code + *len - len_data, data, len_data);
+    }
+    return code;
+} 
 
 int exec_command(int fd, char opcode, uint16_t arg, char *key) {
     char status = OK;
@@ -181,7 +204,7 @@ int exec_command(int fd, char opcode, uint16_t arg, char *key) {
     } else {
         return ERR_RUNTIME;
     }
-    safe_write(1, &status, sizeof(status), &status);
+    safe_write(STDOUT_FILENO, &status, sizeof(status), &status);
     lseek(fd, cursor_before, SEEK_SET);
     return status;
 }

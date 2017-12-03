@@ -4,10 +4,11 @@ import sys, io
 
 bufsize = 2**16
 padding = 16
+act_size = bufsize - padding
 
 def input_check(a):
     a = str(raw_input(a))
-    if len(a) <= bufsize - padding:
+    if len(a) <= act_size:
         return a.strip()
     else:
         print('Too long input! Bye!')
@@ -32,11 +33,11 @@ with io.open(sys.argv[1], "wb") as f:
         dbg += hex(ord(i)) + " "
     print('Your key: ' + dbg)
     write_token(key, input_check('Enter name of test topic: '), f)
-    n = int(raw_input('How many questions? ')
-    while bufsize - padding < n < 1:
+    n = int(raw_input('How many questions? '))
+    while 1 < n < act_size:
         n = int(raw_input('Please enter number 1 .. ' + str(bufsize - padding)))
     while n:
-        write_token(key, input_check('Question: '), f)
-        write_token(key, input_check('Right answer: '), f)
+        write_token(key, input_check('Question ' + str(n) + ' : '), f)
+        write_token(key, input_check('Right answer ' + str(n) + ' : '), f)
         n -= 1
 f.close()

@@ -33,4 +33,6 @@ char read_command(uint16_t *arg);
 
 int exec_command(int fd, char opcode, uint16_t arg, char *key);
 
+char *assembly(char opcode, uint16_t arg, char *data, size_t *len);
+
 #endif
