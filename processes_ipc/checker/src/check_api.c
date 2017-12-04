@@ -129,9 +129,7 @@ static void get_text(int fd, uint16_t arg, char *status, char *key) {
         safe_read_token(fd, buf, &len, status);
         safe_read_token(fd, tmp, &tmp_len, status);
     }
-    if (*status == ERR_READ) {
-        return;
-    }
+    CHCKSTAT(*status);
     xor(buf, key, len);
     if (*status == OK) {
         write_u16(STDOUT_FILENO, len, status);
@@ -148,17 +146,13 @@ static void check_answ(int fd, uint16_t arg, char *status, char *key) {
         *status = ERR_READ;
         return;
     }
-    if (*status == ERR_READ) {
-        return;
-    }
+    CHCKSTAT(*status);
     answer[tmp_len] = '\0';
     while (arg--) {
         safe_read_token(fd, tmp, &tmp_len, status);
         safe_read_token(fd, buf, &len, status);
     }
-    if (*status == ERR_READ) {
-        return;
-    }
+    CHCKSTAT(*status);
     buf[len] = '\0';
     xor(buf, key, len);
     if (check_answer(buf, answer, len)) {
