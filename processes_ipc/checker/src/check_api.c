@@ -29,6 +29,9 @@ char read_command(uint16_t *arg) {
         *arg = 0;
         return EXIT;
     }
+    if (k < 3) {
+        return ERR_READ;
+    }
     *arg = bytes_to_u16(buf[1], buf[2]);
     return buf[0];
 }
@@ -79,6 +82,9 @@ static void safe_write(int fd, char *buf, uint16_t len, char *status) {
 
 static int check_answer(char *right, char *answer, uint16_t len) {
     uint16_t i = 0, j = 0;
+    if (strlen(answer) == 0 && strlen(right) == 0) {
+        return 1;
+    }
     while (isspace(answer[j])) {
         j++;
     }
@@ -130,7 +136,6 @@ static void get_text(int fd, uint16_t arg, char *status, char *key) {
 static void check_answ(int fd, uint16_t arg, char *status, char *key) {
     uint16_t len, tmp_len;
     char answer[BUFSIZE], tmp[BUFSIZE], buf[BUFSIZE]; 
-    *status = WRONG_ANSW;
     safe_read_token(fd, tmp, &tmp_len, status);
     safe_read_token(STDIN_FILENO, answer, &tmp_len, status);
     answer[tmp_len] = '\0';
@@ -145,6 +150,8 @@ static void check_answ(int fd, uint16_t arg, char *status, char *key) {
     xor(buf, key, len);
     if (check_answer(buf, answer, len)) {
         *status = RIGHT_ANSW;
+    } else {
+        *status = WRONG_ANSW;
     }
 }
 
@@ -191,6 +198,9 @@ int exec_command(int fd, char opcode, uint16_t arg, char *key) {
     char status = OK;
     if (opcode == EXIT) {
         return OK;
+    }
+    if (opcode == ERR_READ) {
+        return ERR_RUNTIME;
     }
     off_t cursor_before = lseek(fd, 0, SEEK_CUR);
     lseek(fd, 0, SEEK_SET);

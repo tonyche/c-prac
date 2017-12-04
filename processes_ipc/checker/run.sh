@@ -4,6 +4,7 @@ deployname='check'
 
 if [[ $1 == "-clear" ]];
 then 
+    rm *.swp
     rm -r coverage/ html/ *.dSYM/
     rm $deployname *.log
     echo 'Cleared! Bye'
@@ -19,6 +20,8 @@ fi
 src='./src/'
 headers='./include/'
 compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=c99' 
+
+run_param='test.dat'
 
 if [[ $1 == "-c" ]];
 then 
@@ -55,9 +58,9 @@ then
         exit 1
     elif [[ $1 == "-v" ]];
     then
-        python tester.py tests ./$deployname -tv $2.log
+        python tester.py tests ./$deployname $run_param -tv $2.log
     elif [[ $1 == "-t" ]];
     then
-        python tester.py tests ./$deployname
+        python tester.py tests ./$deployname $run_param
     fi  
 fi

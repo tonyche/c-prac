@@ -19,19 +19,26 @@ print "=" * 30
 program_name = sys.argv[2]
 passed_tests = 0
 
-if sys.argv[3] == '-tv':
-    log = open(sys.argv[4], "w")
+test_name = "test.dat"
+
+if sys.argv[-2] == '-tv':
+    log = open(sys.argv[-1], "w")
+
+flag_exit = 0
 
 for i in range(all_tests):
-    out_file_name = str(i) + "_out.dat"
-    right_answ_file_name = c_dir + str(i) + "_res.dat"
-    cur_test = {'Test': open(c_dir + str(i) + "_test.dat", "r"), \
+    out_file_name = str(i) + "_test_stdout.dat"
+    right_answ_file_name = c_dir + str(i) + "_out.dat"
+    cur_test = {'Test': open(c_dir + str(i) + "_in.dat", "r"), \
                     'RightAnsw': open(right_answ_file_name, "r"), \
                     'Out': open(out_file_name, "w")}
-    if sys.argv[3] == '-tv':
-        subprocess.check_call(['valgrind', program_name], stdout=cur_test['Out'], stdin=cur_test['Test'], stderr=log)
-    else:    
-        subprocess.check_call([program_name], stdout=cur_test['Out'], stdin=cur_test['Test'], stderr=subprocess.STDOUT)
+    try:
+        if sys.argv[-2] == '-tv':
+            subprocess.check_call(['valgrind', program_name, test_name], stdout=cur_test['Out'], stdin=cur_test['Test'], stderr=log)
+        else:    
+            subprocess.check_call([program_name, test_name], stdout=cur_test['Out'], stdin=cur_test['Test'], stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        flag_exit = str(e.returncode)
     cur_test['Test'].close()
     cur_test['RightAnsw'].close()
     cur_test['Out'].close()
@@ -42,6 +49,9 @@ for i in range(all_tests):
     else:
         print " --[X]--> Failed on the test  [" + str(i) + "]. For details see your's program output: " + out_file_name
         continue
+    if int(flag_exit) != 0:
+        print " (test [" + str(i) + "] returned with exit code " + flag_exit + ")"
+        flag_exit = 0
 
 print "=" * 30
 print "Passed tests: " + str(passed_tests) + " of " + str(all_tests)
