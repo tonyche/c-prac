@@ -25,12 +25,13 @@ run_param='test.dat'
 
 if [[ $1 == "-c" ]];
 then 
-    cp -r $src coverage && cp -r $headers ./coverage
+    cp -r $src ./coverage && cp -r $headers ./coverage
+    cp $run_param ./coverage/$run_param
     cd ./coverage
-    gcc -I$headers --coverage $deployname.c check_api.c -o $deployname $compile_param
+    gcc --coverage *.c -o $deployname $compile_param
     ./$deployname #test if no input file
-    python ../tester.py ../tests ./$deployname
-    gcov $deployname
+    python ../tester.py ../tests ./$deployname $run_param
+    gcov $deployname.c
     if [[ $2 == "-local" ]];
     then
         pref+='../lcov/bin/'
