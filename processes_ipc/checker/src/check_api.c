@@ -52,19 +52,19 @@ static int read_token(int fd, char *buf, uint16_t *len) {
     int k;
     char len_buf[ARGSIZE];
     if ((k = read(fd, len_buf, ARGSIZE)) != ARGSIZE) {
-        if (fd != STDIN_FILENO) {
-            off_t old_pos = lseek(fd, 0, SEEK_CUR);
-            off_t current_pos = lseek(fd, 0, SEEK_END);
-            if (old_pos == current_pos) {
-                return DATA_END;
-            }
-            lseek(fd, old_pos, SEEK_SET);
-        }
         return ERR_READ;
     }
     *len = bytes_to_u16(len_buf[0], len_buf[1]);
     if ((k = read(fd, buf, *len)) == -1) {
         errhandler();
+    }
+    if (fd != STDIN_FILENO) {
+        off_t old_pos = lseek(fd, 0, SEEK_CUR);
+        off_t current_pos = lseek(fd, 0, SEEK_END);
+        lseek(fd, old_pos, SEEK_SET);
+        if (old_pos == current_pos) {
+            return DATA_END;
+        }
     }
     if (((uint16_t) k != *len && k > 0) || k > BUFSIZE - PADDING) {
         return ERR_READ;
@@ -125,7 +125,7 @@ static void get_text(int fd, uint16_t arg, char *status, char *key) {
     uint16_t len, tmp_len;
     char buf[BUFSIZE], tmp[BUFSIZE];
     safe_read_token(fd, buf, &len, status);
-    while (arg--) {
+    while (arg-- && *status == OK) {
         safe_read_token(fd, buf, &len, status);
         safe_read_token(fd, tmp, &tmp_len, status);
     }
@@ -148,7 +148,7 @@ static void check_answ(int fd, uint16_t arg, char *status, char *key) {
     }
     CHCKSTAT(*status);
     answer[tmp_len] = '\0';
-    while (arg--) {
+    while (arg-- && *status == OK) {
         safe_read_token(fd, tmp, &tmp_len, status);
         safe_read_token(fd, buf, &len, status);
     }
