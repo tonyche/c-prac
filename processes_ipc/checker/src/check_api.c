@@ -14,10 +14,14 @@
 #define HBYTE(A) ((A & (255 << 8)) >> 8)
 #define LBYTE(A) (A & 255) 
 
+#define CHCKSTAT(A) if (A == ERR_READ) {return;}
+
+//LCOV_EXCL_START
 void errhandler(void) {
     perror(NULL);
     exit(EXIT_FAILURE);
 }
+//LCOV_EXCL_STOP
 
 char read_command(uint16_t *arg) {
     char buf[COMM_LEN];
@@ -48,12 +52,14 @@ static int read_token(int fd, char *buf, uint16_t *len) {
     int k;
     char len_buf[ARGSIZE];
     if ((k = read(fd, len_buf, ARGSIZE)) != ARGSIZE) {
-        off_t old_pos = lseek(fd, 0, SEEK_CUR);
-        off_t current_pos = lseek(fd, 0, SEEK_END);
-        if (old_pos == current_pos) {
-            return DATA_END;
+        if (fd != STDIN_FILENO) {
+            off_t old_pos = lseek(fd, 0, SEEK_CUR);
+            off_t current_pos = lseek(fd, 0, SEEK_END);
+            if (old_pos == current_pos) {
+                return DATA_END;
+            }
+            lseek(fd, old_pos, SEEK_SET);
         }
-        lseek(fd, old_pos, SEEK_SET);
         return ERR_READ;
     }
     *len = bytes_to_u16(len_buf[0], len_buf[1]);
@@ -138,6 +144,13 @@ static void check_answ(int fd, uint16_t arg, char *status, char *key) {
     char answer[BUFSIZE], tmp[BUFSIZE], buf[BUFSIZE]; 
     safe_read_token(fd, tmp, &tmp_len, status);
     safe_read_token(STDIN_FILENO, answer, &tmp_len, status);
+    if (arg == 0) {
+        *status = ERR_READ;
+        return;
+    }
+    if (*status == ERR_READ) {
+        return;
+    }
     answer[tmp_len] = '\0';
     while (arg--) {
         safe_read_token(fd, tmp, &tmp_len, status);
@@ -174,6 +187,8 @@ static void get_num_q(int fd, uint16_t arg, char *status, char *key) {
     }
 }
 
+//TODO IN SECOND .. 4TH STAGE COVER THIS FUNCTION
+//LCOV_EXCL_START
 char *assembly(char opcode, uint16_t arg, char *data, size_t *len) {
     *len = sizeof(opcode) + sizeof(arg);
     char *code;
@@ -192,13 +207,11 @@ char *assembly(char opcode, uint16_t arg, char *data, size_t *len) {
         memcpy(code + *len - len_data, data, len_data);
     }
     return code;
-} 
+}
+//LCOV_EXCL_STOP
 
 int exec_command(int fd, char opcode, uint16_t arg, char *key) {
     char status = OK;
-    if (opcode == EXIT) {
-        return OK;
-    }
     if (opcode == ERR_READ) {
         return ERR_RUNTIME;
     }
@@ -209,7 +222,7 @@ int exec_command(int fd, char opcode, uint16_t arg, char *key) {
         check_answ, 
         get_num_q
     };
-    if (opcode <= COMMS_LEN) {
+    if ((unsigned int) opcode <= COMMS_LEN) {
         (*commands[opcode - 1]) (fd, arg, &status, key);
     } else {
         return ERR_RUNTIME;
