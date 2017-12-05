@@ -14,7 +14,7 @@
 #define HBYTE(A) ((A & (255 << 8)) >> 8)
 #define LBYTE(A) (A & 255) 
 
-#define CHCKSTAT(A) if (A == ERR_READ) {return;}
+#define write_errcode write_msg(STDOUT_FILENO, -1, status)
 
 //LCOV_EXCL_START
 void errhandler(void) {
@@ -121,6 +121,13 @@ static void write_u16(int fd, uint16_t len, char *status) {
     }
 }
 
+static void write_msg(int fd, uint16_t msg, char *status) {
+    write_u16(fd, msg, status);
+    if (*status == ERR_WRITE) {
+        errhandler();
+    }
+}
+
 static void get_text(int fd, uint16_t arg, char *status, char *key) {
     uint16_t len, tmp_len;
     char buf[BUFSIZE], tmp[BUFSIZE];
@@ -129,37 +136,41 @@ static void get_text(int fd, uint16_t arg, char *status, char *key) {
         safe_read_token(fd, buf, &len, status);
         safe_read_token(fd, tmp, &tmp_len, status);
     }
-    CHCKSTAT(*status);
     xor(buf, key, len);
     if (*status == OK) {
         write_u16(STDOUT_FILENO, len, status);
         safe_write(STDOUT_FILENO, buf, len, status);
+    } else {
+        write_errcode;
     }
 }
 
 static void check_answ(int fd, uint16_t arg, char *status, char *key) {
-    uint16_t len, tmp_len;
+    uint16_t len = 0, tmp_len = 0;
     char answer[BUFSIZE], tmp[BUFSIZE], buf[BUFSIZE]; 
     safe_read_token(fd, tmp, &tmp_len, status);
     safe_read_token(STDIN_FILENO, answer, &tmp_len, status);
     if (arg == 0) {
-        *status = ERR_READ;
+        *status = ERR_RUNTIME;
         return;
     }
-    CHCKSTAT(*status);
     answer[tmp_len] = '\0';
     while (arg-- && *status == OK) {
         safe_read_token(fd, tmp, &tmp_len, status);
         safe_read_token(fd, buf, &len, status);
     }
-    CHCKSTAT(*status);
     buf[len] = '\0';
     xor(buf, key, len);
+    if (*status == ERR_READ) {
+        write_errcode;
+        return;
+    }
     if (check_answer(buf, answer, len)) {
         *status = RIGHT_ANSW;
     } else {
         *status = WRONG_ANSW;
     }
+    write_msg(STDOUT_FILENO, bytes_to_u16(0x00, *status), status);
 }
 
 static void get_num_q(int fd, uint16_t arg, char *status, char *key) {
@@ -178,6 +189,8 @@ static void get_num_q(int fd, uint16_t arg, char *status, char *key) {
     if (*status == DATA_END) {
         *status = OK;
         write_u16(STDOUT_FILENO, num, status);
+    } else {
+        write_errcode;
     }
 }
 
@@ -221,7 +234,7 @@ int exec_command(int fd, char opcode, uint16_t arg, char *key) {
     } else {
         return ERR_RUNTIME;
     }
-    safe_write(STDOUT_FILENO, &status, sizeof(status), &status);
+    //safe_write(STDOUT_FILENO, &status, sizeof(status), &status);
     lseek(fd, cursor_before, SEEK_SET);
     return status;
 }
