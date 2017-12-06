@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     }
     int ftest = open(argv[1], O_RDONLY);
     if (ftest == -1) {
-        errhandler();
+        errhandler("open()");
     }
     char opcode, *key = "DEFAULT_KEY_MUST_BE_CHANGED";
     uint16_t arg;

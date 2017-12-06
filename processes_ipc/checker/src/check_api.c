@@ -7,18 +7,11 @@
 #include <stdint.h>
 #include "check_api.h"
 
-#define bytes_to_u16(HIGH, LOW) \
-(((uint16_t) ((uint8_t) HIGH)) & 255) << 8 | \
-            (((uint8_t) LOW) & 255) 
-
-#define HBYTE(A) ((A & (255 << 8)) >> 8)
-#define LBYTE(A) (A & 255) 
-
 #define write_errcode write_msg(STDOUT_FILENO, -1, status)
 
 //LCOV_EXCL_START
-void errhandler(void) {
-    perror(NULL);
+void errhandler(const char *msg) {
+    perror(msg);
     exit(EXIT_FAILURE);
 }
 //LCOV_EXCL_STOP
@@ -56,7 +49,7 @@ static int read_token(int fd, char *buf, uint16_t *len) {
     }
     *len = bytes_to_u16(len_buf[0], len_buf[1]);
     if ((k = read(fd, buf, *len)) == -1) {
-        errhandler();
+        errhandler("read_token");
     }
     if (fd != STDIN_FILENO) {
         off_t old_pos = lseek(fd, 0, SEEK_CUR);
@@ -79,7 +72,7 @@ static void safe_read_token(int fd, char *buf, uint16_t *len, char *status) {
 static void safe_write(int fd, char *buf, uint16_t len, char *status) {
     int k;
     if ((k = write(fd, buf, len)) == -1) {
-        errhandler();
+        errhandler("safe_write");
     }
     if ((uint16_t) k != len) {
         *status = ERR_WRITE;
@@ -88,8 +81,13 @@ static void safe_write(int fd, char *buf, uint16_t len, char *status) {
 
 static int check_answer(char *right, char *answer, uint16_t len) {
     uint16_t i = 0, j = 0;
-    if (strlen(answer) == 0 && strlen(right) == 0) {
-        return 1;
+    if (strlen(answer) == 0) {
+        if (strlen(right) == 0) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
     }
     while (isspace(answer[j])) {
         j++;
@@ -124,7 +122,7 @@ static void write_u16(int fd, uint16_t len, char *status) {
 static void write_msg(int fd, uint16_t msg, char *status) {
     write_u16(fd, msg, status);
     if (*status == ERR_WRITE) {
-        errhandler();
+        errhandler("write_msg");
     }
 }
 
@@ -137,7 +135,7 @@ static void get_text(int fd, uint16_t arg, char *status, char *key) {
         safe_read_token(fd, tmp, &tmp_len, status);
     }
     xor(buf, key, len);
-    if (*status == OK) {
+    if (*status == OK || *status == DATA_END) {
         write_u16(STDOUT_FILENO, len, status);
         safe_write(STDOUT_FILENO, buf, len, status);
     } else {
@@ -196,20 +194,19 @@ static void get_num_q(int fd, uint16_t arg, char *status, char *key) {
 
 //TODO IN SECOND .. 4TH STAGE COVER THIS FUNCTION
 //LCOV_EXCL_START
-char *assembly(char opcode, uint16_t arg, char *data, size_t *len) {
+char *assembly(char opcode, uint16_t arg, char *data, size_t *len, size_t len_data) {
     *len = sizeof(opcode) + sizeof(arg);
     char *code;
     if (!(code = malloc(*len))) {
-        return NULL;
+        errhandler("memory err at assembly()");
     }
     code[0] = opcode;
     code[1] = (char) HBYTE(arg);
     code[2] = (char) LBYTE(arg);
     if (data) {
-        size_t len_data = strlen(data);
         *len += len_data;
         if (!(code = realloc(code, *len))) {
-            return NULL;
+            errhandler("memory err at assembly()");
         }
         memcpy(code + *len - len_data, data, len_data);
     }
@@ -234,7 +231,6 @@ int exec_command(int fd, char opcode, uint16_t arg, char *key) {
     } else {
         return ERR_RUNTIME;
     }
-    //safe_write(STDOUT_FILENO, &status, sizeof(status), &status);
     lseek(fd, cursor_before, SEEK_SET);
     return status;
 }

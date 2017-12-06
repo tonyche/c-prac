@@ -1,6 +1,13 @@
 #ifndef MODULE_H_INCLUDED
 #define MODULE_H_INCLUDED 
 
+#define bytes_to_u16(HIGH, LOW) \
+(((uint16_t) ((uint8_t) HIGH)) & 255) << 8 | \
+(((uint8_t) LOW) & 255)
+
+#define HBYTE(A) ((A & (255 << 8)) >> 8)
+#define LBYTE(A) (A & 255)
+
 /*
  * Небольшое лирическое отступление на тему того, как красиво и правильно
  * добавлять новые команды для работы с зашифрованным .dat файлом:
@@ -8,6 +15,7 @@
  * 1) Сохранять нумерацию (после GET_NUM_OF_QUESTIONS идет номер команды с кодом 0x04 и т.д.)
  * 2) Не забывать увеличивать COMMS_LEN 
 */
+
 enum {
     OK = 0,
     WRONG_ANSW = 1,
@@ -15,6 +23,7 @@ enum {
     BUFSIZE = 65536,
     PADDING = 16,
     ARGSIZE = 2,
+    PREFSIZE = 2,
     ERR_READ = -1,
     ERR_WRITE = -2,
     ERR_RUNTIME = -3,
@@ -27,12 +36,12 @@ enum {
     EXIT = 0x00
 };
 
-void errhandler(void);
+void errhandler(const char *msg);
 
 char read_command(uint16_t *arg);
 
 int exec_command(int fd, char opcode, uint16_t arg, char *key);
 
-char *assembly(char opcode, uint16_t arg, char *data, size_t *len);
+char *assembly(char opcode, uint16_t arg, char *data, size_t *len, size_t len_data);
 
 #endif
