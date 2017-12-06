@@ -21,6 +21,9 @@ enum {
     WRONG_ANSW = 1,
     RIGHT_ANSW = 2,
     BUFSIZE = 65536,
+    BLOCKSIZE = 128,
+    RECV_MODE = 1,
+    SEND_MODE = 0,
     PADDING = 16,
     ARGSIZE = 2,
     PREFSIZE = 2,
@@ -43,5 +46,17 @@ char read_command(uint16_t *arg);
 int exec_command(int fd, char opcode, uint16_t arg, char *key);
 
 char *assembly(char opcode, uint16_t arg, char *data, size_t *len, size_t len_data);
+
+void print_fatal(int mode, char opcode);
+
+void send_cmd(int fd, char opcode, uint16_t arg, char *data, size_t len_data);
+
+void recv_cmd(int fd, char opcode, uint16_t *result, char *data);
+
+void request_gettext(int fd_in, int fd_out, uint16_t arg, char *data);
+
+void input_answer(char *answer, uint16_t *len_answer);
+
+int request_checkanswer(int fd_in, int fd_out, uint16_t arg, char *answer, uint16_t len);
 
 #endif

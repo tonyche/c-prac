@@ -28,7 +28,7 @@ then
     cp -r $src ./coverage && cp -r $headers ./coverage
     cp $run_param ./coverage/$run_param
     cd ./coverage
-    gcc --coverage check_api.c $deployname.c -o $deployname $compile_param
+    gcc --coverage api.c $deployname.c -o $deployname $compile_param
     ./$deployname #test if no input file
     python ../tester.py ../tests ./$deployname $run_param
     gcov $deployname.c
@@ -45,7 +45,7 @@ then
     exit 0
 fi
 
-gcc -I$headers $src/check_api.c $src/$deployname.c -o $deployname -O2 $compile_param -ftrapv -fsanitize=undefined
+gcc -I$headers $src/api.c $src/$deployname.c -o $deployname -O2 $compile_param -ftrapv -fsanitize=undefined
 
 if [[ $? -eq 0 ]];
 then

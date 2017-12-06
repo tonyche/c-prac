@@ -31,7 +31,7 @@ then
     cp $run_param1 $cov_folder$run_param1
     cp $run_param2 $cov_folder$run_param2
     cd $cov_folder
-    gcc --coverage check_api.c tester_api.c $deployname.c -o $deployname $compile_param
+    gcc --coverage api.c $deployname.c -o $deployname $compile_param
     ./$deployname #test if no input file
     python ../tester.py ../tests_$deployname ./$deployname $run_param1 $run_param2
     gcov $deployname.c
@@ -48,7 +48,7 @@ then
     exit 0
 fi
 
-gcc -I$headers $src/tester_api.c $src/check_api.c $src/$deployname.c -o $deployname -O2 $compile_param -ftrapv -fsanitize=undefined
+gcc -I$headers $src/api.c $src/$deployname.c -o $deployname -O2 $compile_param -ftrapv -fsanitize=undefined
 
 if [[ $? -eq 0 ]];
 then

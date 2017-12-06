@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
-#include "check_api.h"
+#include "api.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
