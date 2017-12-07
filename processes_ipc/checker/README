@@ -1,4 +1,4 @@
-./coverage_all.sh -lcov         (get lcov)
-./coverage_all.sh -local        (do cover with local lcov)
-./run_all.sh <testfilename>     (build and run)
-
+./coverage_all.sh -lcov             (get lcov)
+./coverage_all.sh -local            (do cover with local lcov)
+./run_all.sh <testfilename>         (build and run)
+python gen_testfile.py <filename>   (create new crypted test file)
