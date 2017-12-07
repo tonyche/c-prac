@@ -55,7 +55,7 @@ void recv_cmd(int fd, char opcode, uint16_t *result, char *data);
 
 void request_gettext(int fd_in, int fd_out, uint16_t arg, char *data);
 
-void input_answer(char *answer, uint16_t *len_answer, pid_t checker);
+void input_answer(char *answer, uint16_t *len_answer, int *iseof);
 
 int request_checkanswer(int fd_in, int fd_out, uint16_t arg, char *answer, uint16_t len);
 

@@ -15,6 +15,7 @@ int tester_to_chck[2], chck_to_tester[2];
 pid_t p_checker;
 
 void exit_wait(void) {
+    printf("\nYour result is: %" PRIu16 "\n", amount_of_correct);
     send_cmd(tester_to_chck[1], EXIT, 0, NULL, 0);
     close(chck_to_tester[0]);
     close(tester_to_chck[1]);
@@ -33,7 +34,6 @@ void exit_wait(void) {
 
 void sigint_handler(int signo) {
     signo = signo;
-    printf("\nYour result is: %" PRIu16 "\n", amount_of_correct);
     printf("Bye!\n");
     exit_wait();
 }
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
     sigset_t blockset;
     sigemptyset(&blockset);
     sigaddset(&blockset, SIGINT);
-    signal(SIGINT, sigint_handler);
+    signal(SIGINT, sigint_handler);      
     pipe(tester_to_chck);
     pipe(chck_to_tester);
     p_checker = fork();
@@ -65,13 +65,17 @@ int main(int argc, char **argv) {
         printf("Today's test topic is \"%s\"\n\n", msg);
         allow_sigint;
         uint16_t len_answer;
+        int iseof = 0;
         amount_of_correct = 0;
         for (uint16_t i = 1; i <= num_of_ques; i++) {
             deny_sigint;
             request_gettext(fdesk_in, fdesk_out, i, msg);
             printf("%" PRIu16 ") %s\n", i, msg);
             allow_sigint;
-            input_answer(answer, &len_answer, p_checker);
+            input_answer(answer, &len_answer, &iseof);
+            if (iseof) {
+                exit_wait();
+            }
             deny_sigint;
             if (request_checkanswer(fdesk_in, fdesk_out, i, answer, len_answer)) {
                 amount_of_correct += 1;
@@ -80,9 +84,7 @@ int main(int argc, char **argv) {
         }
         if (amount_of_correct == num_of_ques) {
             printf("Congratulations! Your knowledge is perfect!\n");
-        } else {
-            printf("Your result is: %d/%" PRIu16 "\n", amount_of_correct, num_of_ques);
-        }
+        } 
         exit_wait();
     } else if (p_checker == 0) {
         //LCOV_EXCL_START
