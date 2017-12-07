@@ -13,7 +13,7 @@ fi
 
 src='./src/'
 headers='./include/'
-compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=c99 -g' 
+compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=c99' 
 
 if [[ $1 == "-c" ]];
 then 

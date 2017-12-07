@@ -19,7 +19,7 @@ fi
 
 src='./src/'
 headers='./include/'
-compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=c99 -g' 
+compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=c99' 
 
 run_param1='check'
 run_param2='test.dat'
@@ -52,7 +52,6 @@ if [[ $? -eq 0 ]];
 then
     if [[ $1 == "" ]];
     then
-        echo "Processing with no params!"
         exit 0
     elif [[ $1 == "-g" ]];
     then
