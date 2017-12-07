@@ -7,6 +7,8 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <stdint.h>
+#include <sys/types.h>
+#include <signal.h>
 #include "api.h"
 
 #define write_errcode write_msg(STDOUT_FILENO, -1, status)
@@ -326,10 +328,15 @@ void request_gettext(int fd_in, int fd_out, uint16_t arg, char *data){
     recv_cmd(fd_in, GET_TEXT, NULL, data);
 }
 
-void input_answer(char *answer, uint16_t *len_answer) {
-    if (!fgets(&answer[PREFSIZE], BUFSIZE - PREFSIZE, stdin) && !errno) {
-        perror("fgets failed");
-        exit(EXIT_FAILURE);
+void input_answer(char *answer, uint16_t *len_answer, pid_t p_checker) {
+    if (!fgets(&answer[PREFSIZE], BUFSIZE - PREFSIZE, stdin)) {
+        if (errno) {
+            perror("fgets failed");
+            exit(EXIT_FAILURE);
+        }
+        printf("\nBye!\n");
+        kill(p_checker, SIGTERM);
+        exit(EXIT_SUCCESS);
     }
     *len_answer = (uint16_t) strlen(&answer[PREFSIZE]) - 1;
     answer[0] = HBYTE(*len_answer);

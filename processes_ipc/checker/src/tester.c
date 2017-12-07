@@ -69,9 +69,9 @@ int main(int argc, char **argv) {
         for (uint16_t i = 1; i <= num_of_ques; i++) {
             deny_sigint;
             request_gettext(fdesk_in, fdesk_out, i, msg);
-            printf("%" PRIu16 ") %s\n > ", i, msg);
+            printf("%" PRIu16 ") %s\n", i, msg);
             allow_sigint;
-            input_answer(answer, &len_answer);
+            input_answer(answer, &len_answer, p_checker);
             deny_sigint;
             if (request_checkanswer(fdesk_in, fdesk_out, i, answer, len_answer)) {
                 amount_of_correct += 1;
@@ -83,20 +83,6 @@ int main(int argc, char **argv) {
         } else {
             printf("Your result is: %d/%" PRIu16 "\n", amount_of_correct, num_of_ques);
         }
-       /* send_cmd(tester_to_chck[1], EXIT, 0, NULL, 0);
-        close(chck_to_tester[0]);
-        close(tester_to_chck[1]);
-        int status;
-        if (waitpid(p_checker, &status, 0) == -1 ) {
-            errhandler("waitpid failed");
-        }
-        if (WIFEXITED(status)) {
-            const int es = WEXITSTATUS(status);
-            if (es) {
-                printf("Checker exited abnormally. Contact your teacher!\n");
-            }
-        }
-        exit(EXIT_SUCCESS);*/
         exit_wait();
     } else if (p_checker == 0) {
         //LCOV_EXCL_START
