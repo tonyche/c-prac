@@ -34,7 +34,7 @@ with io.open(sys.argv[1], "wb") as f:
     print('Your key: ' + dbg)
     write_token(key, input_check('Enter name of test topic: '), f)
     n = int(raw_input('How many questions? '))
-    while 1 < n < act_size:
+    while 1 > n > act_size:
         n = int(raw_input('Please enter number 1 .. ' + str(bufsize - padding)))
     while n:
         write_token(key, input_check('Question ' + str(n) + ' : '), f)
