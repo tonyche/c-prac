@@ -16,8 +16,9 @@ headers='./include/'
 compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=c99' 
 
 if [[ $1 == "-c" ]];
-then 
-    cp -r $src ./coverage && cp -r $headers ./coverage
+then
+    mkdir coverage
+    cp $src/* ./coverage/ && cp $headers/* ./coverage/
     cd ./coverage
     gcc --coverage -c api.c $compile_param
     exit 0

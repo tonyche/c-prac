@@ -25,7 +25,7 @@ run_param='test.dat'
 
 if [[ $1 == "-c" ]];
 then
-    cp -r $src ./coverage && cp -r $headers ./coverage
+    #cp -r $src ./coverage && cp -r $headers ./coverage
     cp $run_param ./coverage/$run_param
     cd ./coverage
     gcc --coverage -c $deployname.c $compile_param
