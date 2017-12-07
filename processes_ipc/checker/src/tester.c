@@ -26,11 +26,11 @@ int main(int argc, char **argv) {
         recv_cmd(fdesk_in, GET_NUM_OF_QUESTIONS, &num_of_ques, NULL);
         char msg[BUFSIZE], answer[PREFSIZE + BUFSIZE];
         request_gettext(fdesk_in, fdesk_out, 0, msg);
-        printf("  Today's test topic is \"%s\"\n\n", msg);
+        printf("Today's test topic is \"%s\"\n\n", msg);
         uint16_t len_answer, amount_of_correct = 0;
         for (uint16_t i = 1; i <= num_of_ques; i++) {
             request_gettext(fdesk_in, fdesk_out, i, msg);
-            printf("  %" PRIu16 ") %s\n  >  ", i, msg);
+            printf("%" PRIu16 ") %s\n > ", i, msg);
             input_answer(answer, &len_answer);
             if (request_checkanswer(fdesk_in, fdesk_out, i, answer, len_answer)) {
                 amount_of_correct += 1;
@@ -56,11 +56,13 @@ int main(int argc, char **argv) {
         }
         exit(EXIT_SUCCESS);
     } else if (p_checker == 0) {
+        //LCOV_EXCL_START
         dup2(chck_to_tester[1], STDOUT_FILENO);
         close(chck_to_tester[1]);
         dup2(tester_to_chck[0], STDIN_FILENO);
         close(tester_to_chck[0]);
         execl(argv[1], argv[1], argv[2], (char *) 0);
         errhandler("execl");
+        //LCOV_EXCL_STOP
     } 
 }

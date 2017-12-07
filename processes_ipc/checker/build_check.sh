@@ -24,34 +24,38 @@ compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=c99
 run_param='test.dat'
 
 if [[ $1 == "-c" ]];
-then 
+then
     cp -r $src ./coverage && cp -r $headers ./coverage
     cp $run_param ./coverage/$run_param
     cd ./coverage
-    gcc --coverage api.c $deployname.c -o $deployname $compile_param
-    ./$deployname #test if no input file
+    gcc --coverage -c $deployname.c $compile_param
+    gcc --coverage api.o $deployname.o -o $deployname $compile_param
+    ./$deployname
     python ../tester.py ../tests ./$deployname $run_param
     gcov $deployname.c
-    if [[ $2 == "-local" ]];
+    if [[ $3 == "--separate-cov" ]];
     then
-        pref+='../lcov/bin/'
+        if [[ $2 == "-local" ]];
+        then
+            pref+='../lcov/bin/'
+        fi
+        LCOVRUN='lcov --directory ./ --capture --output-file tests.info --rc lcov_branch_coverage=1'
+        GENHTMLRUN='genhtml -o ../html tests.info --branch-coverage'
+        $pref$LCOVRUN
+        cd ../
+        mkdir html && cd ./coverage
+        $pref$GENHTMLRUN
     fi
-    LCOVRUN='lcov --directory ./ --capture --output-file tests.info --rc lcov_branch_coverage=1'
-    GENHTMLRUN='genhtml -o ../html tests.info --branch-coverage'
-    $pref$LCOVRUN
-    cd ../
-    mkdir html && cd ./coverage
-    $pref$GENHTMLRUN
     exit 0
 fi
 
-gcc -I$headers $src/api.c $src/$deployname.c -o $deployname -O2 $compile_param -ftrapv -fsanitize=undefined
+gcc -I$headers -c $src/$deployname.c $compile_param
+gcc -o $deployname api.o $deployname.o -O2 $compile_param -ftrapv -fsanitize=undefined
 
 if [[ $? -eq 0 ]];
 then
     if [[ $1 == "" ]];
     then
-        echo "Processing with no params!"
         exit 0
     elif [[ $1 == "-g" ]];
     then

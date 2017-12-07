@@ -61,7 +61,7 @@ static int read_token(int fd, char *buf, uint16_t *len) {
             return DATA_END;
         }
     }
-    if (((uint16_t) k != *len && k > 0) || k > BUFSIZE - PADDING) {
+    if (((uint16_t) k != *len) || k > BUFSIZE - PADDING) {
         return ERR_READ;
     }
     return OK;
@@ -137,7 +137,7 @@ static void get_text(int fd, uint16_t arg, char *status, char *key) {
         safe_read_token(fd, tmp, &tmp_len, status);
     }
     xor(buf, key, len);
-    if (*status == OK || *status == DATA_END) {
+    if (*status != ERR_READ) {
         write_u16(STDOUT_FILENO, len, status);
         safe_write(STDOUT_FILENO, buf, len, status);
     } else {
@@ -194,8 +194,6 @@ static void get_num_q(int fd, uint16_t arg, char *status, char *key) {
     }
 }
 
-//TODO IN SECOND .. 4TH STAGE COVER THIS FUNCTION
-//LCOV_EXCL_START
 char *assembly(char opcode, uint16_t arg, char *data, size_t *len, size_t len_data) {
     *len = sizeof(opcode) + sizeof(arg);
     char *code;
@@ -214,7 +212,6 @@ char *assembly(char opcode, uint16_t arg, char *data, size_t *len, size_t len_da
     }
     return code;
 }
-//LCOV_EXCL_STOP
 
 int exec_command(int fd, char opcode, uint16_t arg, char *key) {
     char status = OK;
@@ -237,6 +234,7 @@ int exec_command(int fd, char opcode, uint16_t arg, char *key) {
     return status;
 }
 
+//LCOV_EXCL_START
 void print_fatal(int mode, char opcode) {
     //TODO KILL CHILD TOO
     const char *msg[] = {
@@ -251,6 +249,7 @@ void print_fatal(int mode, char opcode) {
     fprintf(stderr, "%s%s\n", msg[!!mode], cmds[opcode - 1]);
     exit(EXIT_FAILURE);
 }
+//LCOV_EXCL_STOP
 
 void send_cmd(int fd, char opcode, uint16_t arg, char *data, size_t len_data) {
     size_t c_len = 0;
@@ -267,7 +266,7 @@ void send_cmd(int fd, char opcode, uint16_t arg, char *data, size_t len_data) {
         goto Err;
     }
     c_len -= COMM_LEN;
-    if (data && len_data != 0) {
+    if (data) {
         size_t blocks = c_len / BLOCKSIZE, i = 0;
         k = BLOCKSIZE;
         while (blocks && k == BLOCKSIZE) {
@@ -328,7 +327,7 @@ void request_gettext(int fd_in, int fd_out, uint16_t arg, char *data){
 }
 
 void input_answer(char *answer, uint16_t *len_answer) {
-    if (!fgets(&answer[PREFSIZE], BUFSIZE, stdin) && !errno) {
+    if (!fgets(&answer[PREFSIZE], BUFSIZE - PREFSIZE, stdin) && !errno) {
         perror("fgets failed");
         exit(EXIT_FAILURE);
     }
