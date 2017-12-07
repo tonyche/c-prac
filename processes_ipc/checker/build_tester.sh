@@ -19,7 +19,7 @@ fi
 
 src='./src/'
 headers='./include/'
-compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=c99' 
+compile_param='-Wall -Werror -pedantic-errors -Wno-pointer-sign -Wextra -std=gnu11' 
 
 run_param1='check'
 run_param2='test.dat'
